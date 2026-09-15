@@ -71,9 +71,9 @@
         }
 
         nav.tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: white; display: flex; border-top: 1px solid #ddd; z-index: 100; }
-        .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; font-size: 0.75rem; color: #777; cursor: pointer; text-align: center; }
+        .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; font-size: 0.7rem; color: #777; cursor: pointer; text-align: center; }
         .tab-btn.active { color: var(--accent-color); font-weight: bold; }
-        .tab-btn span { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+        .tab-btn span { display: block; font-size: 1.1rem; margin-bottom: 2px; }
 
         .tab-content { display: none; padding: 15px 12px; }
         .tab-content.active { display: block; }
@@ -85,8 +85,21 @@
         .gauge-bar { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; }
         .gauge-fill { background: var(--accent-color); height: 100%; width: 0%; transition: width 0.3s; }
 
-        .select-group { display: flex; gap: 8px; margin-bottom: 12px; }
-        select { flex: 1; padding: 10px 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.95rem; background: white; }
+        .select-group { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; }
+        select { flex: 1; padding: 10px 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: white; }
+
+        .btn-intro-modal {
+            background: #eef9f1;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+            padding: 9px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-intro-modal:hover { background: #dcedc8; }
 
         .bible-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; font-size: 0.85rem; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
         .ctrl-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -170,7 +183,7 @@
         }
         .modal-icon { font-size: 3rem; margin-bottom: 10px; }
         .modal-title { font-size: 1.2rem; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
-        .modal-body { font-size: 0.95rem; color: #444; line-height: 1.6; margin-bottom: 20px; }
+        .modal-body { font-size: 0.95rem; color: #444; line-height: 1.6; margin-bottom: 20px; text-align: left; max-height: 60vh; overflow-y: auto; }
         .modal-close-btn { background: var(--accent-color); color: white; border: none; padding: 10px 24px; border-radius: 20px; font-weight: bold; font-size: 0.95rem; cursor: pointer; }
 
         .card-modal-content {
@@ -232,6 +245,15 @@
         .cal-day.today { border: 2px solid var(--accent-color); font-weight: bold; }
         .cal-day .read-badge { background: var(--accent-color); color: white; border-radius: 3px; font-size: 0.65rem; padding: 1px 2px; margin-top: 2px; }
 
+        /* 📋 통독 체크표 격자 스타일 */
+        .grid-header { font-weight: bold; font-size: 1.05rem; color: var(--primary-color); margin: 15px 0 8px 0; border-bottom: 2px solid var(--primary-color); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .book-grid-card { background: white; border: 1px solid #dce1e6; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+        .book-grid-title { font-weight: bold; font-size: 0.92rem; color: #2c3e50; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .ch-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+        .ch-box { border: 1px solid #ccc; font-size: 0.72rem; text-align: center; padding: 5px 0; border-radius: 3px; cursor: pointer; background: #fff; min-height: 34px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.1; }
+        .ch-box.read { background: #27ae60; color: white; border-color: #1e8449; font-weight: bold; }
+        .ch-box .count-tag { font-size: 0.6rem; opacity: 0.9; margin-top: 1px; }
+
         textarea { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; height: 70px; resize: none; margin-bottom: 8px; font-size: 0.9rem; }
         .list-item { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; position: relative; border-left: 3px solid var(--accent-color); }
         .list-item.question-item { border-left-color: #0984e3; }
@@ -279,7 +301,7 @@
     <!-- 🎉 축하 모달 팝업 -->
     <div id="congrat-modal" class="modal-overlay">
         <div class="modal-card">
-            <div class="modal-icon">👏🎉</div>
+            <div class="modal-icon" id="modal-icon-display">👏🎉</div>
             <div class="modal-title" id="congrat-title">할렐루야! 축하합니다!</div>
             <div class="modal-body" id="congrat-body">
                 <b>당신은 하나님의 청지기! ✨</b><br>
@@ -330,6 +352,7 @@
         <div class="card">
             <div class="select-group">
                 <select id="book-select" onchange="loadChapter()"></select>
+                <button class="btn-intro-modal" onclick="showBookIntro()">📖 개요</button>
                 <select id="chapter-select" onchange="renderVerseList()"></select>
             </div>
 
@@ -375,7 +398,17 @@
         </div>
     </div>
 
-    <!-- 2. 출석 달력 탭 -->
+    <!-- 2. 📋 통독 체크표 탭 (새로 추가됨) -->
+    <div id="tab-checkgrid" class="tab-content">
+        <div class="card" style="padding: 12px;">
+            <div style="font-size:0.85rem; color:#666; text-align:center; margin-bottom:8px;">
+                💡 각 칸의 숫자는 <b>장 번호</b>이며, 완독한 장은 <span style="color:#27ae60; font-weight:bold;">초록색</span>과 <b>n회 독수</b>로 표시됩니다.
+            </div>
+            <div id="check-grid-container"></div>
+        </div>
+    </div>
+
+    <!-- 3. 출석 달력 탭 -->
     <div id="tab-calendar" class="tab-content">
         <div class="card">
             <div class="card-title">
@@ -385,7 +418,7 @@
         </div>
     </div>
 
-    <!-- 3. 책갈피 & 묵상 탭 -->
+    <!-- 4. 책갈피 & 묵상 탭 -->
     <div id="tab-bookmarks" class="tab-content">
         <div class="card">
             <div class="card-title">❤️ 마음에 남는 구절</div>
@@ -401,7 +434,7 @@
         </div>
     </div>
 
-    <!-- 4. 기도제목 탭 -->
+    <!-- 5. 기도제목 탭 -->
     <div id="tab-prayer" class="tab-content">
         <div class="card">
             <div class="card-title">🙏 기도제목 나누기</div>
@@ -415,11 +448,13 @@
         </div>
     </div>
 
+    <!-- 하단 탭 바 (5개로 확장) -->
     <nav class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('read', this)"><span>📖</span>읽기</button>
+        <button class="tab-btn" onclick="switchTab('checkgrid', this)"><span>📋</span>통독표</button>
         <button class="tab-btn" onclick="switchTab('calendar', this)"><span>📅</span>달력</button>
-        <button class="tab-btn" onclick="switchTab('bookmarks', this)"><span>🔖</span>책갈피/묵상</button>
-        <button class="tab-btn" onclick="switchTab('prayer', this)"><span>🙏</span>기도제목</button>
+        <button class="tab-btn" onclick="switchTab('bookmarks', this)"><span>🔖</span>책갈피</button>
+        <button class="tab-btn" onclick="switchTab('prayer', this)"><span>🙏</span>기도</button>
     </nav>
 
     <script>
@@ -428,6 +463,7 @@
         // =========================================================================
 
         const rawBibleData = 
+
 {
   "metadata": {
     "source": "https://www.bskorea.or.kr/bible/korbibReadpage.php",
@@ -235823,7 +235859,117 @@
         let longPressTimer = null;
         let isLongPress = false;
 
-        // 🎥 구글 드라이브 100일 통독 일정 데이터 (100일 분량)
+        // 66권 전체 장수 및 카테고리 정의 (통독 체크표용)
+        const BIBLE_STRUCTURE = [
+            { name: "창세기", count: 50, category: "구약" }, { name: "출애굽기", count: 40, category: "구약" },
+            { name: "레위기", count: 27, category: "구약" }, { name: "민수기", count: 36, category: "구약" },
+            { name: "신명기", count: 34, category: "구약" }, { name: "여호수아", count: 24, category: "구약" },
+            { name: "사사기", count: 21, category: "구약" }, { name: "룻기", count: 4, category: "구약" },
+            { name: "사무엘상", count: 31, category: "구약" }, { name: "사무엘하", count: 24, category: "구약" },
+            { name: "열왕기상", count: 22, category: "구약" }, { name: "열왕기하", count: 25, category: "구약" },
+            { name: "역대상", count: 29, category: "구약" }, { name: "역대하", count: 36, category: "구약" },
+            { name: "에스라", count: 10, category: "구약" }, { name: "느헤미야", count: 13, category: "구약" },
+            { name: "에스더", count: 10, category: "구약" }, { name: "욥기", count: 42, category: "구약" },
+            { name: "시편", count: 150, category: "구약" }, { name: "잠언", count: 31, category: "구약" },
+            { name: "전도서", count: 12, category: "구약" }, { name: "아가", count: 8, category: "구약" },
+            { name: "이사야", count: 66, category: "구약" }, { name: "예레미야", count: 52, category: "구약" },
+            { name: "예레미야애가", count: 5, category: "구약" }, { name: "에스겔", count: 48, category: "구약" },
+            { name: "다니엘", count: 12, category: "구약" }, { name: "호세아", count: 14, category: "구약" },
+            { name: "요엘", count: 3, category: "구약" }, { name: "아모스", count: 9, category: "구약" },
+            { name: "오바디야", count: 1, category: "구약" }, { name: "요나", count: 4, category: "구약" },
+            { name: "미가", count: 7, category: "구약" }, { name: "나훔", count: 3, category: "구약" },
+            { name: "하박국", count: 3, category: "구약" }, { name: "스바냐", count: 3, category: "구약" },
+            { name: "학개", count: 2, category: "구약" }, { name: "스카리야", count: 14, category: "구약" }, { name: "말라기", count: 4, category: "구약" },
+            { name: "마태복음", count: 28, category: "신약" }, { name: "마가복음", count: 16, category: "신약" },
+            { name: "누가복음", count: 24, category: "신약" }, { name: "요한복음", count: 21, category: "신약" },
+            { name: "사도행전", count: 28, category: "신약" }, { name: "로마서", count: 16, category: "신약" },
+            { name: "고린도전서", count: 16, category: "신약" }, { name: "고린도후서", count: 13, category: "신약" },
+            { name: "갈라디아서", count: 6, category: "신약" }, { name: "에베소서", count: 6, category: "신약" },
+            { name: "빌립보서", count: 4, category: "신약" }, { name: "골로새서", count: 4, category: "신약" },
+            { name: "데살로니가전서", count: 5, category: "신약" }, { name: "데살로니가후서", count: 3, category: "신약" },
+            { name: "디모데전서", count: 6, category: "신약" }, { name: "디모데후서", count: 4, category: "신약" },
+            { name: "디도서", count: 3, category: "신약" }, { name: "빌레몬서", count: 1, category: "신약" },
+            { name: "히브리서", count: 13, category: "신약" }, { name: "야고보서", count: 5, category: "신약" },
+            { name: "베드로전서", count: 5, category: "신약" }, { name: "베드로후서", count: 3, category: "신약" },
+            { name: "요한일서", count: 5, category: "신약" }, { name: "요한이서", count: 1, category: "신약" },
+            { name: "요한삼서", count: 1, category: "신약" }, { name: "유다서", count: 1, category: "신약" },
+            { name: "요한계시록", count: 22, category: "신약" }
+        ];
+
+                // 📖 성경 66권 전체 전문적/구체적 역사적 배경 및 개요 데이터베이스
+        const BIBLE_INTRO_DB = {
+            // [구약 39권]
+            "창세기": { title: "창세기 (Genesis)", author: "모세", period: "B.C. 1446 ~ 1406년경", text: "<b>역사적 배경 및 목적:</b> 우주 만물과 인류의 기원, 죄의 유입, 그리고 아브라함을 통한 구속사의 시작을 기록했습니다.<br><b>주요 내용:</b> 창조, 타락, 노아 홍수, 바벨탑 및 4대 족장(아브라함, 이삭, 야곱, 요셉)의 섭리적 여정." },
+            "출애굽기": { title: "출애굽기 (Exodus)", author: "모세", period: "B.C. 1446 ~ 1406년경", text: "<b>역사적 배경 및 목적:</b> 애굽(이집트) 노예 상태에서의 해방과 시내산 언약을 통한 제사장 나라의 출범을 기록했습니다.<br><b>주요 내용:</b> 10가지 재앙, 출애굽과 홍해 기적, 십계명과 성막 건립." },
+            "레위기": { title: "레위기 (Leviticus)", author: "모세", period: "B.C. 1445년경", text: "<b>역사적 배경 및 목적:</b> 거룩하신 하나님께 나아가는 제사법과 거룩한 백성의 성결 규범을 제시합니다.<br><b>주요 내용:</b> 5대 제사(번제·소제·화목제·속죄제·속건제), 정결법, 대속죄일 및 7대 절기." },
+            "민수기": { title: "민수기 (Numbers)", author: "모세", period: "B.C. 1406년경", text: "<b>역사적 배경 및 목적:</b> 시내산 출발 후 가나안 접경 모압 평지까지 38년간의 광야 훈련과 인구 조사를 기록했습니다.<br><b>주요 내용:</b> 1·2차 인구조사, 가데스 바네아의 불신앙, 놋뱀 사건, 광야 신세대의 준비." },
+            "신명기": { title: "신명기 (Deuteronomy)", author: "모세", period: "B.C. 1406년경", text: "<b>역사적 배경 및 목적:</b> 가나안 입성을 앞둔 신세대 이스라엘에게 모세가 전한 3편의 고별 설교입니다.<br><b>주요 내용:</b> 쉐마(하나님 사랑), 율법의 재해석, 순종의 복과 불순종의 저주 선포." },
+            "여호수아": { title: "여호수아 (Joshua)", author: "여호수아", period: "B.C. 1390년경", text: "<b>역사적 배경 및 목적:</b> 아브라함에게 약속하신 가나안 땅의 정복과 지파별 분배 과정을 기록했습니다.<br><b>주요 내용:</b> 요단강 정복, 여리고 성 함락, 가나안 영토 분배 및 여호수아의 고별사." },
+            "사사기": { title: "사사기 (Judges)", author: "사무엘 (추정)", period: "B.C. 1050년경", text: "<b>역사적 배경 및 목적:</b> 왕이 없던 영적 암흑기 동안의 배교, 징계, 부르짖음, 구원의 악순환을 보여줍니다.<br><b>주요 내용:</b> 사사들의 활동(드보라, 기드온, 입다, 삼손 등)과 도덕적·영적 혼란." },
+            "룻기": { title: "룻기 (Ruth)", author: "사무엘 (추정)", period: "B.C. 1010년경", text: "<b>역사적 배경 및 목적:</b> 사사 시대의 신실한 모압 여인 룻을 통해 다윗과 예수 그리스도의 가계를 조명합니다.<br><b>주요 내용:</b> 나오미의 귀환, 보아스의 기업 무를 자(Goel) 역할과 룻과의 결합." },
+            "사무엘상": { title: "사무엘상 (1 Samuel)", author: "사무엘/갓/나단", period: "B.C. 930년 이후", text: "<b>역사적 배경 및 목적:</b> 신정 정치에서 왕정 정치로 전환되는 과도기의 역사를 다룹니다.<br><b>주요 내용:</b> 사무엘의 출생과 사역, 사울 왕의 입폐, 다윗의 도피 생활과 연단." },
+            "사무엘하": { title: "사무엘하 (2 Samuel)", author: "갓/나단", period: "B.C. 930년 이후", text: "<b>역사적 배경 및 목적:</b> 다윗이 통일 이스라엘의 왕으로 등극하여 나라를 확립하는 과정을 기록했습니다.<br><b>주요 내용:</b> 헤브론 통치, 다윗 언약(7장), 밧세바 범죄와 징계, 압살롬의 반란." },
+            "열왕기상": { title: "열왕기상 (1 Kings)", author: "예레미야 (추정)", period: "B.C. 560년경", text: "<b>역사적 배경 및 목적:</b> 솔로몬의 영광과 성전 건축, 그리고 솔로몬 사후 남북 분열의 역사를 다룹니다.<br><b>주요 내용:</b> 솔로몬의 지혜와 성전 건축, 남북 분열왕국(B.C. 931), 엘리야 선지자의 사역." },
+            "열왕기하": { title: "열왕기하 (2 Kings)", author: "예레미야 (추정)", period: "B.C. 560년경", text: "<b>역사적 배경 및 목적:</b> 남북 왕국의 쇠퇴와 멸망, 바벨론 포로로 이어진 율법 불순종의 결과를 기록했습니다.<br><b>주요 내용:</b> 엘리샤 사역, 북이스라엘 멸망(B.C. 722), 남유다 멸망 및 쇄신 실패(B.C. 586)." },
+            "역대상": { title: "역대상 (1 Chronicles)", author: "에스라 (추정)", period: "B.C. 450년경", text: "<b>역사적 배경 및 목적:</b> 포로 귀환민들에게 다윗 왕조의 영적 정통성과 성전 예배 회복의 중요성을 일깨웁니다.<br><b>주요 내용:</b> 아담부터의 족보, 다윗의 왕위 확립과 성전 건축 준비 및 예배 조직." },
+            "역대하": { title: "역대하 (2 Chronicles)", author: "에스라 (추정)", period: "B.C. 450년경", text: "<b>역사적 배경 및 목적:</b> 솔로몬 성전 영광과 남유다 왕들의 종교개혁을 중심으로 구속사를 재조명합니다.<br><b>주요 내용:</b> 솔로몬 성전 헌당, 남유다 왕들의 개혁(아사, 여호사밧, 히스기야, 요시야), 고레스 칙령." },
+            "에스라": { title: "에스라 (Ezra)", author: "에스라", period: "B.C. 440년경", text: "<b>역사적 배경 및 목적:</b> 바벨론 포로 1·2차 귀환과 성전 재건, 율법 중심의 공동체 회복을 기록했습니다.<br><b>주요 내용:</b> 스룹바벨의 성전 재건(1차 귀환), 에스라의 율법 교육과 개혁 운동(2차 귀환)." },
+            "느헤미야": { title: "느헤미야 (Nehemiah)", author: "느헤미야", period: "B.C. 430년경", text: "<b>역사적 배경 및 목적:</b> 예루살렘 성벽의 재건과 포로 귀환 공동체의 사회적·영적 개혁을 기록했습니다.<br><b>주요 내용:</b> 52일 만의 성벽 완공(3차 귀환), 수문 앞 광장 율법 낭독, 대대적인 종교 개혁." },
+            "에스더": { title: "에스더 (Esther)", author: "모르드개 (추정)", period: "B.C. 400년경", text: "<b>역사적 배경 및 목적:</b> 페르시아 제국 하에서 멸절 위기에 처했던 유다 민족을 구원하신 하나님의 숨은 손길을 증언합니다.<br><b>주요 내용:</b> 왕후 에스더의 결단('죽으면 죽으리이다'), 하만의 음모 좌절, 부림절의 제정." },
+            "욥기": { title: "욥기 (Job)", author: "미상", period: "족장 시대 (B.C. 2000년경 추정)", text: "<b>역사적 배경 및 목적:</b> 의인의 고난이라는 주제를 통해 하나님의 절대 주권과 지혜의 무한함을 조명합니다.<br><b>주요 내용:</b> 욥의 재앙과 고난, 세 친구와의 신학적 논쟁, 폭풍우 속 하나님의 현현과 회복." },
+            "시편": { title: "시편 (Psalms)", author: "다윗, 아삽, 고라자손 등", period: "B.C. 1400 ~ 430년경", text: "<b>역사적 배경 및 목적:</b> 하나님을 향한 찬양, 감사, 회개, 애통, 메시아 예언이 담긴 150편의 시가지집입니다.<br><b>주요 내용:</b> 5권 구조, 제왕시, 찬양시, 탄식시, 지혜시, 메시아 예언시." },
+            "잠언": { title: "잠언 (Proverbs)", author: "솔로몬, 아굴, 라무엘 등", period: "B.C. 950 ~ 700년경", text: "<b>역사적 배경 및 목적:</b> 여호와를 경외하는 것이 지혜의 근본임을 깨닫게 하는 실천적 삶의 지침서입니다.<br><b>주요 내용:</b> 지혜와 우매의 비교, 언어와 재물 및 대인관계 지혜, 현숙한 여인." },
+            "전도서": { title: "전도서 (Ecclesiastes)", author: "솔로몬 (추정)", period: "B.C. 935년경", text: "<b>역사적 배경 및 목적:</b> 해 아래에서의 모든 삶의 헛됨을 지적하고, 하나님 안에서만 참된 의미를 찾음을 강조합니다.<br><b>주요 내용:</b> 헛되고 헛되도다, 때의 지혜, 청년기의 경고, 하나님 경외의 결론." },
+            "아가": { title: "아가 (Song of Songs)", author: "솔로몬", period: "B.C. 960년경", text: "<b>역사적 배경 및 목적:</b> 솔로몬과 술람미 여인의 순결한 사랑을 통해 하나님과 백성(그리스도와 교회)의 사랑을 묘사합니다.<br><b>주요 내용:</b> 구애와 사랑의 성숙, 시련의 극복, 죽음보다 강한 사랑의 승리." },
+            "이사야": { title: "이사야 (Isaiah)", author: "이사야", period: "B.C. 740 ~ 680년경", text: "<b>역사적 배경 및 목적:</b> 남유다의 범죄에 대한 심판과 고난받는 종(메시아)을 통한 구원의 영광을 예언합니다.<br><b>주요 내용:</b> 심판 선포(1-39장), 메시아 수난과 위로(40-55장), 새 하늘과 새 땅(56-66장)." },
+            "예레미야": { title: "예레미야 (Jeremiah)", author: "예레미야", period: "B.C. 627 ~ 580년경", text: "<b>역사적 배경 및 목적:</b> 남유다 멸망 직전 눈물로 회개를 촉구하고 바벨론 포로 70년과 새 언약을 예언했습니다.<br><b>주요 내용:</b> 성전 설교, 바벨론 포로 70년 예언, 새 언약 선포(31장), 예루살렘 함락." },
+            "예레미야애가": { title: "예레미야애가 (Lamentations)", author: "예레미야", period: "B.C. 586년경", text: "<b>역사적 배경 및 목적:</b> 예루살렘 성전과 도성의 파괴를 목도하며 드린 5편의 답두체(알파벳 순) 슬픈 노래입니다.<br><b>주요 내용:</b> 파괴된 도성의 비가, 여호와의 인자와 궁휼에 대한 소망, 회복의 기도." },
+            "에스겔": { title: "에스겔 (Ezekiel)", author: "에스겔", period: "B.C. 593 ~ 571년경", text: "<b>역사적 배경 및 목적:</b> 바벨론 포로지에서 환상을 통해 심판의 정당성과 이스라엘의 영적 회복을 선포했습니다.<br><b>주요 내용:</b> 하나님 영광의 떠남과 심판, 마른 뼈 환상(37장), 새 성전과 여호와 삼마(48장)." },
+            "다니엘": { title: "다니엘 (Daniel)", author: "다니엘", period: "B.C. 605 ~ 530년경", text: "<b>역사적 배경 및 목적:</b> 이방 제국 들 속에서도 승리하는 하나님의 주권과 종말론적 하나님 나라를 계시합니다.<br><b>주요 내용:</b> 다니엘과 세 친구의 신앙, 풀무불과 사자굴 구원, 신상과 네 짐승 환상, 70이레 예언." },
+            "호세아": { title: "호세아 (Hosea)", author: "호세아", period: "B.C. 755 ~ 715년경", text: "<b>역사적 배경 및 목적:</b> 고멜과의 결혼을 통해 음란한 북이스라엘을 향한 하나님의 변함없는 변개 없는 사랑(헤세드)을 보여줍니다.<br><b>주요 내용:</b> 음란한 아내 고멜, 영적 간음 비판, 하나님의 끝없는 구애와 회복 약속." },
+            "요엘": { title: "요엘 (Joel)", author: "요엘", period: "B.C. 835년경 (추정)", text: "<b>역사적 배경 및 목적:</b> 메뚜기 재앙을 계기로 '여호와의 날'의 회개 촉구와 주의 영(성령) 임재를 예언했습니다.<br><b>주요 내용:</b> 메뚜기 재앙, 여호와의 날과 금식 회개, 성령 부어주심 예언(오순절 성취)." },
+            "아모스": { title: "아모스 (Amos)", author: "아모스", period: "B.C. 760년경", text: "<b>역사적 배경 및 목적:</b> 풍요 속 부패했던 북이스라엘을 향해 정의와 공의의 실천을 외친 드고아 목자의 메시지입니다.<br><b>주요 내용:</b> 열방과 이스라엘 심판, 정의를 물 같이 흐르게 하라, 5가지 환상, 다윗의 장막 회복." },
+            "오바디야": { title: "오바디야 (Obadiah)", author: "오바디야", period: "B.C. 586년경", text: "<b>역사적 배경 및 목적:</b> 형제국 이스라엘의 멸망을 방관하고 기뻐했던 에돔 족속의 오만과 멸망을 선포했습니다.<br><b>주요 내용:</b> 바위 틈에 거하는 에돔의 교만, 형제에 대한 포학 심판, 여호와의 나라 확립." },
+            "요나": { title: "요나 (Jonah)", author: "요나", period: "B.C. 760년경", text: "<b>역사적 배경 및 목적:</b> 이방 족속 니느웨를 회개시키시는 하나님을 통해 민족주의를 넘어선 구원의 보편성을 가르칩니다.<br><b>주요 내용:</b> 다시스로 도망, 물고기 배 속 기도, 니느웨 전도와 회개, 박넝쿨 사건." },
+            "미가": { title: "미가 (Micah)", author: "미가", period: "B.C. 735 ~ 700년경", text: "<b>역사적 배경 및 목적:</b> 사회적 지도층의 탐욕과 불의를 고발하고, 베들레헴에서 탄생할 메시아를 예언했습니다.<br><b>주요 내용:</b> 지도자들의 부패 심판, 베들레헴 메시아 탄생 예언(5:2), 여호와께서 구하시는 실천." },
+            "나훔": { title: "나훔 (Nahum)", author: "나훔", period: "B.C. 660 ~ 630년경", text: "<b>역사적 배경 및 목적:</b> 앗수르 제국의 수도 니느웨의 잔혹함에 대한 하나님의 공의로운 심판을 선포합니다.<br><b>주요 내용:</b> 위엄 있으신 하나님의 현현, 니느웨의 철저한 파멸 선언, 유다를 향한 위로." },
+            "하박국": { title: "하박국 (Habakkuk)", author: "하박국", period: "B.C. 608 ~ 605년경", text: "<b>역사적 배경 및 목적:</b> '왜 악인이 형통한가'라는 질문에 하나님이 주권을 갖고 계심을 깨닫고 믿음으로 찬양합니다.<br><b>주요 내용:</b> 하박국의 질문과 응답, '의인은 믿음으로 살리라'(2:4), 무화과나무 열매 없어도 드리는 찬양." },
+            "스바냐": { title: "스바냐 (Zephaniah)", author: "스바냐", period: "B.C. 640 ~ 609년경", text: "<b>역사적 배경 및 목적:</b> 요시야 왕 시절 임박한 '여호와의 광풍의 날'에 겸손히 하나님을 찾을 것을 촉구했습니다.<br><b>주요 내용:</b> 여호와의 대심판의 날, 겸손한 남은 자 구원, 너로 말미암아 기쁨을 이기지 못하시는 하나님." },
+            "학개": { title: "학개 (Haggai)", author: "학개", period: "B.C. 520년경", text: "<b>역사적 배경 및 목적:</b> 포로 귀환 후 중단되었던 예루살렘 성전 재건 공사를 다시 시작하도록 독려했습니다.<br><b>주요 내용:</b> 성전 방치에 대한 경고, 성전 재건 독려, 나중 영광이 이전 영광보다 크리라." },
+            "스카리야": { title: "스카리야 (Zechariah)", author: "스카리야", period: "B.C. 520 ~ 470년경", text: "<b>역사적 배경 및 목적:</b> 환상을 통해 성전 재건을 장려하고, 겸손히 나귀를 타고 오실 메시아를 예언했습니다.<br><b>주요 내용:</b> 8가지 밤의 환상, 메시아의 겸손한 입성 예언(9:9), 은 30에 팔리심, 찌른 바 그를 바라봄." },
+            "말라기": { title: "말라기 (Malachi)", author: "말라기", period: "B.C. 430년경", text: "<b>역사적 배경 및 목적:</b> 포로 귀환 후 영적으로 매너리즘에 빠진 백성과 제사장들의 매너리즘을 책망하고 엘리야의 오심을 예언했습니다.<br><b>주요 내용:</b> 형식적 제사와 십일조 면탈 책망, 십일조 축복 약속, 의로운 해와 엘리야(세례요한) 예언." },
+
+            // [신약 27권]
+            "마태복음": { title: "마태복음 (Matthew)", author: "마태", period: "A.D. 60 ~ 70년경", text: "<b>역사적 배경 및 목적:</b> 유대인을 주요 대상으로 기록하여, 예수께서 구약 예언을 성취하신 '왕 메시아'이심을 증언합니다.<br><b>주요 내용:</b> 아브라함과 다윗의 족보, 산상수훈(5-7장), 천국 7대 비유, 대사명 위임(28장)." },
+            "마가복음": { title: "마가복음 (Mark)", author: "마가", period: "A.D. 50 ~ 60년대", text: "<b>역사적 배경 및 목적:</b> 로마인들을 대상으로 고난받는 인자이자 섬기는 '종으로서의 예수 그리스도'를 생동감 있게 다룹니다.<br><b>주요 내용:</b> 즉시(Immediately) 이루어지는 기적 사역, 대속물로 오신 예수(10:45), 십자가 사건." },
+            "누가복음": { title: "누가복음 (Luke)", author: "누가", period: "A.D. 60 ~ 63년경", text: "<b>역사적 배경 및 목적:</b> 이방인 데오필로를 위해 인자이신 예수께서 소외된 자들을 구원하러 오셨음을 정밀하게 기록했습니다.<br><b>주요 내용:</b> 세례요한/예수 탄생 상세, 잃어버린 자 비유(15장), 탕자의 비유, 엠마오 오솔길 나타나심." },
+            "요한복음": { title: "요한복음 (John)", author: "사도 요한", period: "A.D. 85 ~ 90년경", text: "<b>역사적 배경 및 목적:</b> 독자가 예수가 하나님의 아들 그리스도이심을 믿고 영생을 얻게 하려고 영적으로 기록한 책입니다.<br><b>주요 내용:</b> 로고스(말씀) 성육신, 7가지 표적과 '나는 ~이다'(I AM) 선언, 다락방 강화 및 성령 약속." },
+            "사도행전": { title: "사도행전 (Acts)", author: "누가", period: "A.D. 63 ~ 65년경", text: "<b>역사적 배경 및 목적:</b> 오순절 성령 임재 후 예루살렘에서 로마까지 교회가 확장되어 가는 성령의 행전입니다.<br><b>주요 내용:</b> 성령 강림, 스데반 순교, 바울의 회심과 1·2·3차 전도여행, 로마 법정 입성." },
+            "로마서": { title: "로마서 (Romans)", author: "바울", period: "A.D. 57년경 (고린도 집필)", text: "<b>역사적 배경 및 목적:</b> 인류의 죄와 오직 믿음으로 의롭게 되는 '이신득의(以信得義)' 구원관을 체계적으로 서술했습니다.<br><b>주요 내용:</b> 모든 인간의 죄, 칭의, 성화와 영화(8장), 이스라엘의 구원 계획, 산 제물의 삶." },
+            "고린도전서": { title: "고린도전서 (1 Corinthians)", author: "바울", period: "A.D. 55년경 (에베소 집필)", text: "<b>역사적 배경 및 목적:</b> 세속적인 고린도 교회 내의 파당, 음행, 소송, 은성 남용 등의 문제를 바로잡기 위해 썼습니다.<br><b>주요 내용:</b> 십자가의 지혜, 교회의 분열 극복, 십자가 사랑장(13장), 부활장(15장)." },
+            "고린도후서": { title: "고린도후서 (2 Corinthians)", author: "바울", period: "A.D. 56년경 (마게도냐 집필)", text: "<b>역사적 배경 및 목적:</b> 바울 사도권에 대한 거짓 사도들의 공격을 변호하고, 약함 속에 나타나는 하나님의 능력을 증언합니다.<br><b>주요 내용:</b> 질그릇에 담긴 보배, 바울의 사도권 변호, 연보의 원리, 바울의 육체의 가시와 은혜." },
+            "갈라디아서": { title: "갈라디아서 (Galatians)", author: "바울", period: "A.D. 49년경", text: "<b>역사적 배경 및 목적:</b> 율법주의 거짓 교사들에 맞서 오직 그리스도를 믿는 믿음으로 얻는 복음적 자유를 변호합니다.<br><b>주요 내용:</b> 다른 복음 경고, 칭의의 참된 의미, 그리스도 안에서의 자유, 성령의 9가지 열매." },
+            "에베소서": { title: "에베소서 (Ephesians)", author: "바울", period: "A.D. 60 ~ 62년경 (옥중서신)", text: "<b>역사적 배경 및 목적:</b> 그리스도의 몸인 교회의 영광스러운 비밀과 일치, 영적 전쟁에서의 승리를 다룹니다.<br><b>주요 내용:</b> 창세 전 예정과 구원, 담을 허무신 하나 됨, 성령 충만과 가정 생활, 전신갑주." },
+            "빌립보서": { title: "빌립보서 (Philippians)", author: "바울", period: "A.D. 61 ~ 62년경 (옥중서신)", text: "<b>역사적 배경 및 목적:</b> 감옥 갇힘 중에도 빌립보 교인들의 후원에 감사하며 '기쁨'과 그리스도를 묵상하도록 권면합니다.<br><b>주요 내용:</b> 그리스도의 겸손(기논시스, 2장), 내게 능력 주시는 자 안에서의 만족, 주 안에서 기뻐하라." },
+            "골로새서": { title: "골로새서 (Colossians)", author: "바울", period: "A.D. 60 ~ 62년경 (옥중서신)", text: "<b>역사적 배경 및 목적:</b> 영지주의와 유대 율법주의 등 신비주의 혼합 사상을 배격하고 그리스도의 우월성을 선포합니다.<br><b>주요 내용:</b> 만물의 으뜸이신 그리스도, 철학과 헛된 속임수 경고, 땅의 것을 죽이고 위의 것을 찾으라." },
+            "데살로니가전서": { title: "데살로니가전서 (1 Thessalonians)", author: "바울", period: "A.D. 51년경", text: "<b>역사적 배경 및 목적:</b> 핍박 속에 있는 신생 교회를 격려하고 예수 그리스도의 재림 소망과 거룩함을 권면합니다.<br><b>주요 내용:</b> 믿음의 역사와 사랑의 수고, 주의 재림과 죽은 자들의 부활 소망, 쉬지 말고 기도하라." },
+            "데살로니가후서": { title: "데살로니가후서 (2 Thessalonians)", author: "바울", period: "A.D. 51 ~ 52년경", text: "<b>역사적 배경 및 목적:</b> 재림에 대한 잘못된 오해(재림 임박설)로 일을 하지 않는 자들을 경고하고 건전한 일상을 촉구합니다.<br><b>주요 내용:</b> 불법의 사람(적그리스도)의 나타남, 핍박 속의 인내, 일하기 싫어하거든 먹지도 말라." },
+            "디모데전서": { title: "디모데전서 (1 Timothy)", author: "바울", period: "A.D. 63 ~ 65년경 (목회서신)", text: "<b>역사적 배경 및 목적:</b> 에베소 교회를 목회하는 영적 아들 디모데에게 바른 교훈과 직분자 자격 및 교회 관리 지침을 줍니다.<br><b>주요 내용:</b> 바른 교리와 거짓 교사 경고, 감독과 집사의 자격, 자족하는 마음과 돈을 사랑함의 경고." },
+            "디모데후서": { title: "디모데후서 (2 Timothy)", author: "바울", period: "A.D. 67년경 (바울의 마지막 옥중 유언)", text: "<b>역사적 배경 및 목적:</b> 순교를 직전에 둔 바울이 디모데에게 고난을 견디고 복음의 말씀을 끝까지 지키라고 당부합니다.<br><b>주요 내용:</b> 복음과 함께 고난을 받으라, 성경의 감동과 유익성(3:16), 선한 싸움을 다 싸우고 달려갈 길을 마침." },
+            "디도서": { title: "디도서 (Titus)", author: "바울", period: "A.D. 63 ~ 65년경 (목회서신)", text: "<b>역사적 배경 및 목적:</b> 그레데 섬 교회를 맡은 디도에게 장로 세우기, 이단 경계, 선한 행실을 통한 복음 증거를 명합니다.<br><b>주요 내용:</b> 장로의 자격, 경건한 가정과 세대별 교훈, 하나님의 은혜와 선한 일에 열심 냄." },
+            "빌레몬서": { title: "빌레몬서 (Philemon)", author: "바울", period: "A.D. 60 ~ 62년경 (옥중서신)", text: "<b>역사적 배경 및 목적:</b> 도망친 노예 오네시모를 그리스도 안에서 용서하고 형제로 받아들여 줄 것을 주인 빌레몬에게 간청합니다.<br><b>주요 내용:</b> 갇힌 중에서 낳은 아들 오네시모, 그리스도 안에서 종을 넘어선 형제 사랑의 실천." },
+            "히브리서": { title: "히브리서 (Hebrews)", author: "미상 (바울/아볼로/바르나바 등)", period: "A.D. 64 ~ 68년경", text: "<b>역사적 배경 및 목적:</b> 유대교로 돌아가려는 유대계 그리스도인들에게 구약 제사보다 우월하신 대제사장 예수를 증언합니다.<br><b>주요 내용:</b> 천사·모세·아론보다 우월하신 예수, 멜기세덱의 반차, 믿음의 장(11장), 은혜의 보좌." },
+            "야고보서": { title: "야고보서 (James)", author: "주의 형제 야고보", period: "A.D. 45 ~ 50년경", text: "<b>역사적 배경 및 목적:</b> 실천이 결여된 관념적 신앙을 비판하고, 행함으로 증명되는 산 믿음의 중요성을 강조합니다.<br><b>주요 내용:</b> 시험을 참는 자의 복, 혀의 제어, 행함이 없는 믿음은 죽은 것(2장), 헛된 맹세와 기도." },
+            "베드로전서": { title: "베드로전서 (1 Peter)", author: "베드로", period: "A.D. 64년경 (로마 집필)", text: "<b>역사적 배경 및 목적:</b> 로마 제국의 박해 아래 있는 소아시아 신자들에게 산 소망을 전하고 나그네로서 고난을 인내하도록 격려합니다.<br><b>주요 내용:</b> 산 소망과 산 돌이신 예수, 왕 같은 제사장, 고난을 통한 정금 같은 신앙 연단." },
+            "베드로후서": { title: "베드로후서 (2 Peter)", author: "베드로", period: "A.D. 66 ~ 68년경", text: "<b>역사적 배경 및 목적:</b> 교회 내부로 침투한 거짓 교사들과 영지주의적 방종에 맞서 영적 지식과 경건을 자라가게 합니다.<br><b>주요 내용:</b> 신성한 성품에 참여함, 거짓 교사의 특징과 심판, 주의 날은 도둑 같이 임함." },
+            "요한일서": { title: "요한1서 (1 John)", author: "사도 요한", period: "A.D. 85 ~ 90년경", text: "<b>역사적 배경 및 목적:</b> 영지주의 이단을 배격하고, 하나님과의 사귐, 진리 안에서의 사랑, 구원의 확신을 줍니다.<br><b>주요 내용:</b> 하나님은 빛이시라, 서로 사랑하라, 하나님은 사랑이심(4장), 구원의 확신." },
+            "요한이서": { title: "요한2서 (2 John)", author: "사도 요한", period: "A.D. 85 ~ 90년경", text: "<b>역사적 배경 및 목적:</b> 이단(그리스도의 육체 오심을 부인하는 자)을 경계하고 진리와 사랑 안에서 행할 것을 당부합니다.<br><b>주요 내용:</b> 계명을 따라 행하는 사랑, 적그리스도 미혹 경계, 이단을 집에 들이지도 말 것." },
+            "요한삼서": { title: "요한3서 (3 John)", author: "사도 요한", period: "A.D. 85 ~ 90년경", text: "<b>역사적 배경 및 목적:</b> 순회 전도자들을 칭찬하고 대접한 가이오의 선행을 격려하고 으뜸되기를 좋아하는 디오드레베를 훈계합니다.<br><b>주요 내용:</b> 영혼이 잘됨 같이 범사에 잘됨(2절), 나그네 대접, 디모데의 좋은 증언." },
+            "유다서": { title: "유다서 (Jude)", author: "주의 형제 유다", period: "A.D. 65 ~ 80년경", text: "<b>역사적 배경 및 목적:</b> 교회사이에 가만히 들어온 경건하지 않은 자들의 방종을 경계하고 단번에 주신 믿음의 도를 싸우라 권면합니다.<br><b>주요내용:</b> 출애굽 불신앙과 타락한 천사 심판, 가인·발람·고라의 길, 믿음 위에 자신을 세움." },
+            "요한계시록": { title: "요한계시록 (Revelation)", author: "사도 요한", period: "A.D. 95년경 (밧모섬 옥중)", text: "<b>역사적 배경 및 목적:</b> 로마의 극심한 핍박 속 교회를 향해 마귀의 멸망과 만왕의 왕이신 예수 그리스도의 최종 승리를 계시합니다.<br><b>주요 내용:</b> 소아시아 7교해 편지, 인·나팔·대접 심판, 바벨론 멸망, 새 하늘과 새 땅과 새 예루살렘." }
+        };
+
+
         const BIBLE_100_DAYS_PLAN = [
             { day: 1, title: "창세기 1장 ~ 16장" }, { day: 2, title: "창세기 17장 ~ 30장" }, { day: 3, title: "창세기 31장 ~ 43장" },
             { day: 4, title: "창세기 44장 ~ 출애굽기 6장" }, { day: 5, title: "출애굽기 7장 ~ 18장" }, { day: 6, title: "출애굽기 19장 ~ 31장" },
@@ -235892,7 +236038,6 @@
             }
         }
 
-        // 🎥 100일 통독 하루 분량 한 번에 통독 처리
         function completeDayPack() {
             const dayVal = parseInt(document.getElementById('day-pack-select').value);
             const plan = BIBLE_100_DAYS_PLAN.find(p => p.day === dayVal);
@@ -235907,13 +236052,11 @@
             const today = getTodayStr();
             if (!readData[today]) readData[today] = [];
 
-            let addedCount = 0;
             chapters.forEach(chKey => {
                 if (!readData[today].includes(chKey)) {
                     readData[today].push(chKey);
                 }
                 readCounts[chKey] = (readCounts[chKey] || 0) + 1;
-                addedCount++;
             });
 
             localStorage.setItem(READ_KEY, JSON.stringify(readData));
@@ -235923,17 +236066,13 @@
 
             loadChapter();
             updateGaugeAndStats();
+            renderCheckGrid();
         }
 
-        // 범위 파싱 보조 함수 (예: "창세기 1장 ~ 16장" -> ["창세기_1", "창세기_2", ...])
         function parseRangeToChapters(titleStr) {
             const result = [];
             const match = titleStr.match(/^(.+?)\s+(\d+)장\s*~\s*(?:(.+?)\s+)?(\d+)장$/);
-            if (!match) {
-                // 단일 권 처리 (예: "요한계시록 10장 ~ 22장")
-                const singleMatch = titleStr.match(/^(.+?)\s+(\d+)장/);
-                return result;
-            }
+            if (!match) return result;
 
             const startBook = match[1].trim();
             const startCh = parseInt(match[2]);
@@ -235945,7 +236084,6 @@
                     result.push(`${startBook}_${c}`);
                 }
             } else {
-                // 책이 바뀌는 구간 (예: 창세기 44장 ~ 출애굽기 6장)
                 if (bibleData[startBook]) {
                     const maxCh1 = Math.max(...Object.keys(bibleData[startBook]).map(Number));
                     for (let c = startCh; c <= maxCh1; c++) result.push(`${startBook}_${c}`);
@@ -236062,20 +236200,25 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
 
-            if(tabId === 'calendar') renderCalendar();
-            if(tabId === 'bookmarks') renderBookmarks();
+            if (tabId === 'calendar') renderCalendar();
+            if (tabId === 'bookmarks') renderBookmarks();
+            if (tabId === 'checkgrid') renderCheckGrid();
         }
 
         function initBookSelect() {
             const bSelect = document.getElementById('book-select');
             bSelect.innerHTML = "";
-            for (let book in bibleData) {
+            
+            // 데이터가 비어있는 경우 기본 66권 목록 활용
+            const bookList = Object.keys(bibleData).length > 0 ? Object.keys(bibleData) : BIBLE_STRUCTURE.map(b => b.name);
+            
+            bookList.forEach(book => {
                 let opt = document.createElement('option');
                 opt.value = book; opt.innerText = book;
                 bSelect.appendChild(opt);
-            }
+            });
             loadChapter();
         }
 
@@ -236087,19 +236230,25 @@
             const prevCh = cSelect.value;
             cSelect.innerHTML = "";
 
+            let chapters = [];
             if(bibleData[book]) {
-                const chapters = Object.keys(bibleData[book]).map(Number).sort((a,b) => a - b);
-                chapters.forEach(ch => {
-                    const count = getChapterReadCount(book, ch);
-                    let opt1 = document.createElement('option'); 
-                    opt1.value = ch; 
-                    opt1.innerText = count > 0 ? `${ch}장 (${count}회)` : `${ch}장`; 
-                    cSelect.appendChild(opt1);
-                });
-                
-                if (chapters.includes(Number(prevCh))) {
-                    cSelect.value = prevCh;
-                }
+                chapters = Object.keys(bibleData[book]).map(Number).sort((a,b) => a - b);
+            } else {
+                const struct = BIBLE_STRUCTURE.find(b => b.name === book);
+                const count = struct ? struct.count : 50;
+                for(let i=1; i<=count; i++) chapters.push(i);
+            }
+
+            chapters.forEach(ch => {
+                const count = getChapterReadCount(book, ch);
+                let opt1 = document.createElement('option'); 
+                opt1.value = ch; 
+                opt1.innerText = count > 0 ? `${ch}장 (${count}회)` : `${ch}장`; 
+                cSelect.appendChild(opt1);
+            });
+            
+            if (chapters.includes(Number(prevCh))) {
+                cSelect.value = prevCh;
             }
             renderVerseList();
         }
@@ -236114,65 +236263,64 @@
             const rawVerses = (bibleData[book] && bibleData[book][ch]) ? bibleData[book][ch] : [];
 
             if (rawVerses.length === 0) {
-                container.innerText = "본문을 찾을 수 없습니다.";
-                return;
-            }
+                container.innerHTML = `<div style="padding:15px; text-align:center; color:#666;">📖 <b>${book} ${ch}장</b> 본문 데이터가 분리 저장되어 있습니다.<br><small>(상단에 JSON 전체 데이터를 붙여넣으시면 본문이 표시됩니다)</small></div>`;
+            } else {
+                rawVerses.forEach((rawTextData, idx) => {
+                    if(!rawTextData) return;
+                    const text = extractVerseText(rawTextData);
+                    const vNum = idx + 1;
+                    const vKey = `${book}_${ch}_${vNum}`;
+                    const title = `${book} ${ch}:${vNum}`;
+                    const isFav = bookmarks.some(b => b.verseKey === vKey && b.type === 'fav');
+                    const isQuest = bookmarks.some(b => b.verseKey === vKey && b.type === 'quest');
+                    const memoText = verseMemos[vKey] || "";
 
-            rawVerses.forEach((rawTextData, idx) => {
-                if(!rawTextData) return;
-                const text = extractVerseText(rawTextData);
-                const vNum = idx + 1;
-                const vKey = `${book}_${ch}_${vNum}`;
-                const title = `${book} ${ch}:${vNum}`;
-                const isFav = bookmarks.some(b => b.verseKey === vKey && b.type === 'fav');
-                const isQuest = bookmarks.some(b => b.verseKey === vKey && b.type === 'quest');
-                const memoText = verseMemos[vKey] || "";
+                    const div = document.createElement('div');
+                    div.className = "verse-item";
+                    div.id = `verse-item-${idx}`;
+                    div.style.fontSize = currentFontSize + "px";
+                    
+                    let badges = "";
+                    if(isFav) badges += `<span class="badge badge-fav">❤️ 인상적</span>`;
+                    if(isQuest) badges += `<span class="badge badge-quest">❓ 궁금함</span>`;
+                    if(memoText) badges += `<span class="badge badge-memo">📝 메모</span>`;
 
-                const div = document.createElement('div');
-                div.className = "verse-item";
-                div.id = `verse-item-${idx}`;
-                div.style.fontSize = currentFontSize + "px";
-                
-                let badges = "";
-                if(isFav) badges += `<span class="badge badge-fav">❤️ 인상적</span>`;
-                if(isQuest) badges += `<span class="badge badge-quest">❓ 궁금함</span>`;
-                if(memoText) badges += `<span class="badge badge-memo">📝 메모</span>`;
+                    div.innerHTML = `
+                        <div><span class="verse-num">${vNum}.</span>${text} <span class="badge-group" id="badge-group-${vKey}">${badges}</span></div>
+                        <div id="memo-preview-${vKey}">${memoText ? `<div class="memo-preview">💭 ${memoText}</div>` : ''}</div>
+                    `;
 
-                div.innerHTML = `
-                    <div><span class="verse-num">${vNum}.</span>${text} <span class="badge-group" id="badge-group-${vKey}">${badges}</span></div>
-                    <div id="memo-preview-${vKey}">${memoText ? `<div class="memo-preview">💭 ${memoText}</div>` : ''}</div>
-                `;
+                    const verseData = { vKey, title, text };
+                    
+                    div.addEventListener('click', (e) => {
+                        if (isLongPress) {
+                            isLongPress = false;
+                            return;
+                        }
+                        startTTS(idx);
+                    });
 
-                const verseData = { vKey, title, text };
-                
-                div.addEventListener('click', (e) => {
-                    if (isLongPress) {
+                    div.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        openContextMenu(e.clientX, e.clientY, verseData);
+                    });
+
+                    div.addEventListener('touchstart', (e) => {
                         isLongPress = false;
-                        return;
-                    }
-                    startTTS(idx);
+                        longPressTimer = setTimeout(() => {
+                            isLongPress = true;
+                            if(navigator.vibrate) navigator.vibrate(50);
+                            const touch = e.touches[0];
+                            openContextMenu(touch.clientX, touch.clientY, verseData);
+                        }, 500);
+                    });
+
+                    div.addEventListener('touchend', () => clearTimeout(longPressTimer));
+                    div.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
+                    container.appendChild(div);
                 });
-
-                div.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    openContextMenu(e.clientX, e.clientY, verseData);
-                });
-
-                div.addEventListener('touchstart', (e) => {
-                    isLongPress = false;
-                    longPressTimer = setTimeout(() => {
-                        isLongPress = true;
-                        if(navigator.vibrate) navigator.vibrate(50);
-                        const touch = e.touches[0];
-                        openContextMenu(touch.clientX, touch.clientY, verseData);
-                    }, 500);
-                });
-
-                div.addEventListener('touchend', () => clearTimeout(longPressTimer));
-                div.addEventListener('touchmove', () => clearTimeout(longPressTimer));
-
-                container.appendChild(div);
-            });
+            }
 
             container.scrollTop = 0;
 
@@ -236188,12 +236336,93 @@
 
             const currentChNum = parseInt(ch);
             const nextChNum = currentChNum + 1;
-            if (bibleData[book] && bibleData[book][nextChNum]) {
+            
+            // 장이 있는지 여부 체크
+            let hasNext = false;
+            if (bibleData[book] && bibleData[book][nextChNum]) hasNext = true;
+            else {
+                const struct = BIBLE_STRUCTURE.find(b => b.name === book);
+                if (struct && nextChNum <= struct.count) hasNext = true;
+            }
+
+            if (hasNext) {
                 nextBtn.innerText = `다음 장으로 이동 ▶ (${book} ${nextChNum}장)`;
                 nextBtn.style.display = "block";
             } else {
                 nextBtn.style.display = "none";
             }
+        }
+
+        // 📋 통독 체크표 생성 및 렌더링
+        function renderCheckGrid() {
+            const container = document.getElementById('check-grid-container');
+            if(!container) return;
+            container.innerHTML = '';
+
+            ['구약', '신약'].forEach(cat => {
+                const catHeader = document.createElement('div');
+                catHeader.className = 'grid-header';
+                catHeader.innerHTML = `<span>📜 ${cat} 성경 읽기표</span>`;
+                container.appendChild(catHeader);
+
+                const books = BIBLE_STRUCTURE.filter(b => b.category === cat);
+                books.forEach(b => {
+                    const card = document.createElement('div');
+                    card.className = 'book-grid-card';
+
+                    const title = document.createElement('div');
+                    title.className = 'book-grid-title';
+                    title.innerHTML = `<span>${b.name}</span> <span style="font-size:0.75rem; color:#666; font-weight:normal;">총 ${b.count}장</span>`;
+                    card.appendChild(title);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'ch-grid';
+
+                    for (let i = 1; i <= b.count; i++) {
+                        const count = getChapterReadCount(b.name, i);
+                        const box = document.createElement('div');
+                        box.className = `ch-box ${count > 0 ? 'read' : ''}`;
+                        box.innerHTML = count > 0 
+                            ? `<span>${i}</span><span class="count-tag">${count}회</span>`
+                            : `<span>${i}</span>`;
+                        box.onclick = () => {
+                            switchTab('read', document.querySelectorAll('.tab-btn')[0]);
+                            document.getElementById('book-select').value = b.name;
+                            loadChapter();
+                            document.getElementById('chapter-select').value = i;
+                            renderVerseList();
+                        };
+                        grid.appendChild(box);
+                    }
+
+                    card.appendChild(grid);
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        // 📖 성경 개요 모달 표시 함수
+        function showBookIntro() {
+            const bName = document.getElementById('book-select').value;
+            const intro = BIBLE_INTRO_DB[bName] || {
+                title: `${bName}`,
+                author: "구약/신약 저자",
+                period: "성경 기록 연대",
+                text: `<b>역사적 배경 및 개요:</b> ${bName}은(는) 하나님의 구속사와 언약 성취를 증언하는 거룩한 말씀입니다. 구체적인 장별 묵상을 통해 하나님의 신실하심을 배울 수 있습니다.`
+            };
+
+            document.getElementById('modal-icon-display').textContent = '📘';
+            document.getElementById('congrat-title').textContent = intro.title;
+            document.getElementById('congrat-body').innerHTML = `
+                <div style="font-size:0.85rem; color:#27ae60; font-weight:bold; margin-bottom:8px;">
+                    ✍️ 저자: ${intro.author} | 🗓️ 시기: ${intro.period}
+                </div>
+                <hr style="border:none; border-top:1px dashed #ccc; margin-bottom:12px;">
+                <div style="font-size:0.9rem; line-height:1.6; color:#333;">
+                    ${intro.text}
+                </div>
+            `;
+            document.getElementById('congrat-modal').style.display = 'flex';
         }
 
         function updateSingleVerseBadges(vKey) {
@@ -236279,13 +236508,12 @@
                     return;
                 }
 
-                // ⏱️ 장 전체 읽기가 끝난 경우
                 if (ttsVerseIndex >= verses.length) {
                     if (autoNextChecked) {
                         btn.innerText = "⏩ 5초 후 다음 장 이동...";
                         autoNextTimer = setTimeout(() => {
                             goToNextChapter();
-                            startTTS(0); // 다음 장으로 자동 전환 후 1절부터 TTS 재생
+                            startTTS(0);
                         }, 5000);
                     } else {
                         stopTTS();
@@ -236364,8 +236592,15 @@
             const currentChNum = parseInt(cSelect.value);
             const nextChNum = currentChNum + 1;
 
-            if (bibleData[book] && bibleData[book][nextChNum]) {
-                incrementReadChapter(false); // 수동 완료 축하음 중복 방지
+            let hasNext = false;
+            if (bibleData[book] && bibleData[book][nextChNum]) hasNext = true;
+            else {
+                const struct = BIBLE_STRUCTURE.find(b => b.name === book);
+                if (struct && nextChNum <= struct.count) hasNext = true;
+            }
+
+            if (hasNext) {
+                incrementReadChapter(false);
                 cSelect.value = nextChNum;
                 renderVerseList();
             }
@@ -236585,6 +236820,7 @@
                 }, 250);
             }
 
+            document.getElementById('modal-icon-display').textContent = '👏🎉';
             document.getElementById('congrat-title').innerText = customTitle || "할렐루야! 축하합니다!";
             document.getElementById('congrat-body').innerHTML = customBody || "<b>당신은 하나님의 청지기! ✨</b><br>말씀이신 예수님과 더욱 가까워지신 것을<br>진심으로 축하합니다! 🙏";
 
@@ -236614,6 +236850,7 @@
 
             loadChapter();            
             updateGaugeAndStats();    
+            renderCheckGrid();
         }
 
         function updateGaugeAndStats() {
